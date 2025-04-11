@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Supabase Login Session</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f4f8;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start; /* 使內容在縱向上自動適應 */
+      height: 100vh;
+      overflow-y: auto; /* 設定垂直可滾動 */
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+      font-size: 24px;
+    }
+    #loginForm, #statusArea, #bankForm {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      width: 400px; /* 固定寬度 */
+      max-width: 100%;
+      margin-top: 20px;
+    }
+    input[type="email"], input[type="password"], input[type="number"] {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 10px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #banks p {
+      margin-bottom: 10px;
+    }
+    #statusArea {
+      display: none;
+    }
+    #bankForm {
+      display: none;
+    }
+    @media (max-width: 600px) {
+      body {
+        padding: 10px;
+      }
+      h1 {
+        font-size: 20px;
+      }
+      button {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <h1>Supabase Login Session Example</h1>
+
+    <!-- 登入區塊 -->
+    <div id="loginForm">
+      <input type="email" id="email" placeholder="Email"><br />
+      <input type="password" id="password" placeholder="Password"><br />
+      <button onclick="signIn()">登入</button>
+    </div>
+
+    <!-- 狀態與登出 -->
+    <div id="statusArea">
+      <p>已登入：<span id="userEmail"></span></p>
+      <button onclick="signOut()">登出</button>
+      <button onclick="saveBankData()">儲存</button>
+    </div>
+
+    <!-- bank0~bank9 表單 -->
+    <div id="bankForm">
+      <h3>Bank Data</h3>
+      <p>累積存款：<span id="totalAmount">0</span></p>
+
+      <div id="banks">
+        <p>(006)合作金庫(5880) bank0: <input id="bank0" placeholder="bank0" type="number" onchange="updateTotal()"></p>
+        <p>(012)台北富邦(2881) bank1: <input id="bank1" placeholder="bank1" type="number" onchange="updateTotal()"></p>
+        <p>(013)國泰世華(2882) bank2: <input id="bank2" placeholder="bank2" type="number" onchange="updateTotal()"></p>
+        <p>(017)兆豐銀行(2886) bank3: <input id="bank3" placeholder="bank3" type="number" onchange="updateTotal()"></p>
+        <p>(048)王道銀行(2897) bank4: <input id="bank4" placeholder="bank4" type="number" onchange="updateTotal()"></p>
+        <p>(103)新光銀行(2888) bank5: <input id="bank5" placeholder="bank5" type="number" onchange="updateTotal()"></p>
+        <p>(700)中華郵政 bank6: <input id="bank6" placeholder="bank6" type="number" onchange="updateTotal()"></p>
+        <p>(808)玉山銀行(2884) bank7: <input id="bank7" placeholder="bank7" type="number" onchange="updateTotal()"></p>
+        <p>(812)台新銀行(2887) bank8: <input id="bank8" placeholder="bank8" type="number" onchange="updateTotal()"></p>
+        <p>(822)中國信託(2891) bank9: <input id="bank9" placeholder="bank9" type="number" onchange="updateTotal()"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supabase CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.0.0/dist/umd/supabase.min.js"></script>
+
+  <script>
+    const supabase = window.supabase.createClient(
+      'https://lgztvgybalhvppkfpwdc.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxnenR2Z3liYWxodnBwa2Zwd2RjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQzNDkwMTQsImV4cCI6MjA1OTkyNTAxNH0.JfB6J38LmdlvUwIgkdRmQcBDnv6OzFaA-D27S0ylVnA'
+    );
+
+    let currentUserEmail = null;
+
+    // 進入頁面先檢查是否已有 session
+    document.addEventListener('DOMContentLoaded', async () => {
+      const savedEmail = localStorage.getItem('savedEmail');
+      if (savedEmail) document.getElementById('email').value = savedEmail;
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        currentUserEmail = user.email;
+        updateUIAfterLogin();
+        await getUserData();
+      }
+    });
+
+    async function signIn() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      localStorage.setItem('savedEmail', email);
+
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+      if (error) return alert('登入錯誤：' + error.message);
+
+      currentUserEmail = data.user.email;
+      updateUIAfterLogin();
+      await getUserData();
+    }
+
+    async function signOut() {
+      await supabase.auth.signOut();  // 登出 Supabase 使用者
+      localStorage.removeItem('savedEmail');  // 清除本地儲存的 email
+      currentUserEmail = null;  // 清除當前的使用者郵件
+      document.getElementById('loginForm').style.display = 'block';  // 顯示登入表單
+      document.getElementById('statusArea').style.display = 'none';  // 隱藏登入狀態區域
+      document.getElementById('bankForm').style.display = 'none';  // 隱藏銀行資料表單
+      alert('登出成功！');  // 顯示登出提示
+    }
+
+    function updateUIAfterLogin() {
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('statusArea').style.display = 'block';
+      document.getElementById('bankForm').style.display = 'block';
+      document.getElementById('userEmail').textContent = currentUserEmail;
+    }
+
+    async function getUserData() {
+      const { data, error } = await supabase
+        .from('bank3data3')
+        .select('*')
+        .eq('userName', currentUserEmail);
+
+      let total = 0;
+
+      for (let i = 0; i < 10; i++) {
+        const value = data?.[0]?.[`bank${i}`] || 0;
+        const input = document.getElementById(`bank${i}`);
+        input.value = value;
+        total += parseFloat(value);
+      }
+
+      // 更新總和顯示
+      document.getElementById('totalAmount').textContent = total.toFixed(2);
+    }
+
+    function updateTotal() {
+      let total = 0;
+      for (let i = 0; i < 10; i++) {
+        const bankValue = parseFloat(document.getElementById(`bank${i}`).value) || 0;
+        total += bankValue;
+      }
+      document.getElementById('totalAmount').textContent = total.toFixed(2);
+    }
+
+    async function saveBankData() {
+      const updates = { userName: currentUserEmail };
+      for (let i = 0; i < 10; i++) {
+        updates[`bank${i}`] = document.getElementById(`bank${i}`).value;
+      }
+
+      const { error } = await supabase
+        .from('bank3data3')
+        .upsert([updates], { onConflict: ['userName'] });
+
+      if (error) return alert('儲存失敗：' + error.message);
+      alert('儲存成功！');
+    }
+  </script>
+</body>
+</html>
