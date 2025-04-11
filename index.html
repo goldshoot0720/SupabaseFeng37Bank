@@ -12,7 +12,7 @@
       padding: 0;
       display: flex;
       justify-content: center;
-      align-items: flex-start; /* 使內容在縱向上自動適應 */
+      align-items: center; /* 改為居中對齊 */
       height: 100vh;
       overflow-y: auto; /* 設定垂直可滾動 */
     }
@@ -20,14 +20,15 @@
       text-align: center;
       color: #333;
       font-size: 24px;
+      margin-bottom: 20px;
     }
     #loginForm, #statusArea, #bankForm {
       background-color: white;
       border-radius: 8px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       padding: 20px;
-      width: 400px; /* 固定寬度 */
-      max-width: 100%;
+      width: 100%;
+      max-width: 400px; /* 固定最大寬度 */
       margin-top: 20px;
     }
     input[type="email"], input[type="password"], input[type="number"] {
@@ -69,6 +70,16 @@
       }
       button {
         font-size: 14px;
+        padding: 10px; /* 按鈕內邊距調整 */
+      }
+      #loginForm, #statusArea, #bankForm {
+        width: 100%;
+        max-width: 90%; /* 調整表單最大寬度，適應小螢幕 */
+      }
+    }
+    @media (max-width: 400px) {
+      h1 {
+        font-size: 18px; /* 更小螢幕的字體大小 */
       }
     }
   </style>
