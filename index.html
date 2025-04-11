@@ -3,124 +3,121 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Supabase Login Session</title>
+  <title>Supabase Login Session Example</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f0f4f8;
       margin: 0;
       padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center; /* 改為居中對齊 */
-      height: 100vh;
-      overflow-y: auto; /* 設定垂直可滾動 */
+      background-color: #f4f4f4;
+      color: #333;
     }
+
     h1 {
       text-align: center;
-      color: #333;
-      font-size: 24px;
-      margin-bottom: 20px;
-    }
-    #loginForm, #statusArea, #bankForm {
-      background-color: white;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      padding: 20px;
-      width: 100%;
-      max-width: 400px; /* 固定最大寬度 */
       margin-top: 20px;
     }
-    input[type="email"], input[type="password"], input[type="number"] {
-      width: 100%;
-      padding: 12px;
-      margin: 8px 0;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      box-sizing: border-box;
+
+    .hidden {
+      display: none;
     }
+
+    /* General form styling */
+    input[type="email"], input[type="password"], input[type="number"], button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+
     button {
-      background-color: #007bff;
+      background-color: #007BFF;
       color: white;
       border: none;
-      padding: 12px;
-      border-radius: 4px;
       cursor: pointer;
-      width: 100%;
-      margin-top: 10px;
     }
+
     button:hover {
       background-color: #0056b3;
     }
-    #banks p {
-      margin-bottom: 10px;
+
+    /* Center the login form */
+    #loginForm, #statusArea, #bankForm {
+      max-width: 400px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
-    #statusArea {
-      display: none;
+
+    #bankForm input {
+      width: 80%;
+      display: inline-block;
     }
-    #bankForm {
-      display: none;
+
+    /* Status display */
+    #statusArea p {
+      font-size: 18px;
+      color: #555;
     }
+
+    /* Small screens */
     @media (max-width: 600px) {
-      body {
-        padding: 10px;
-      }
-      h1 {
-        font-size: 20px;
-      }
-      button {
+      input[type="email"], input[type="password"], input[type="number"], button {
         font-size: 14px;
-        padding: 10px; /* 按鈕內邊距調整 */
+        padding: 8px;
       }
-      #loginForm, #statusArea, #bankForm {
-        width: 100%;
-        max-width: 90%; /* 調整表單最大寬度，適應小螢幕 */
-      }
-    }
-    @media (max-width: 400px) {
-      h1 {
-        font-size: 18px; /* 更小螢幕的字體大小 */
+
+      #statusArea p {
+        font-size: 16px;
       }
     }
   </style>
 </head>
 <body>
-  <div>
-    <h1>Supabase Login Session Example</h1>
+  <h1>Supabase Login Session Example</h1>
 
-    <!-- 登入區塊 -->
-    <div id="loginForm">
-      <input type="email" id="email" placeholder="Email"><br />
-      <input type="password" id="password" placeholder="Password"><br />
-      <button onclick="signIn()">登入</button>
-    </div>
-
-    <!-- 狀態與登出 -->
-    <div id="statusArea">
-      <p>已登入：<span id="userEmail"></span></p>
-      <button onclick="signOut()">登出</button>
-      <button onclick="saveBankData()">儲存</button>
-    </div>
-
-    <!-- bank0~bank9 表單 -->
-    <div id="bankForm">
-      <h3>Bank Data</h3>
-      <p>累積存款：<span id="totalAmount">0</span></p>
-
-      <div id="banks">
-        <p>(006)合作金庫(5880) bank0: <input id="bank0" placeholder="bank0" type="number" onchange="updateTotal()"></p>
-        <p>(012)台北富邦(2881) bank1: <input id="bank1" placeholder="bank1" type="number" onchange="updateTotal()"></p>
-        <p>(013)國泰世華(2882) bank2: <input id="bank2" placeholder="bank2" type="number" onchange="updateTotal()"></p>
-        <p>(017)兆豐銀行(2886) bank3: <input id="bank3" placeholder="bank3" type="number" onchange="updateTotal()"></p>
-        <p>(048)王道銀行(2897) bank4: <input id="bank4" placeholder="bank4" type="number" onchange="updateTotal()"></p>
-        <p>(103)新光銀行(2888) bank5: <input id="bank5" placeholder="bank5" type="number" onchange="updateTotal()"></p>
-        <p>(700)中華郵政 bank6: <input id="bank6" placeholder="bank6" type="number" onchange="updateTotal()"></p>
-        <p>(808)玉山銀行(2884) bank7: <input id="bank7" placeholder="bank7" type="number" onchange="updateTotal()"></p>
-        <p>(812)台新銀行(2887) bank8: <input id="bank8" placeholder="bank8" type="number" onchange="updateTotal()"></p>
-        <p>(822)中國信託(2891) bank9: <input id="bank9" placeholder="bank9" type="number" onchange="updateTotal()"></p>
-      </div>
-    </div>
+  <!-- 登入區塊 -->
+  <div id="loginForm">
+    <input type="email" id="email" placeholder="Email"><br />
+    <input type="password" id="password" placeholder="Password"><br />
+    <button onclick="signIn()">登入</button>
   </div>
+
+  <!-- 狀態與登出 -->
+  <div id="statusArea" class="hidden">
+    <p>已登入：<span id="userEmail"></span></p>
+    <p>財富等級：<span id="wealthLevel"></span></p>
+    <button onclick="signOut()">登出</button>
+  </div>
+
+  <!-- bank0~bank9 表單 -->
+  <div id="bankForm" class="hidden">
+    <h3>Bank Data</h3>
+    <p>累積存款：<span id="totalAmount">0</span></p>
+
+    <div id="banks">
+      <p>(006)合作金庫(5880) bank0: <input id="bank0" type="number" onchange="updateTotal()"></p>
+      <p>(012)台北富邦(2881) bank1: <input id="bank1" type="number" onchange="updateTotal()"></p>
+      <p>(013)國泰世華(2882) bank2: <input id="bank2" type="number" onchange="updateTotal()"></p>
+      <p>(017)兆豐銀行(2886) bank3: <input id="bank3" type="number" onchange="updateTotal()"></p>
+      <p>(048)王道銀行(2897) bank4: <input id="bank4" type="number" onchange="updateTotal()"></p>
+      <p>(103)新光銀行(2888) bank5: <input id="bank5" type="number" onchange="updateTotal()"></p>
+      <p>(700)中華郵政 bank6: <input id="bank6" type="number" onchange="updateTotal()"></p>
+      <p>(808)玉山銀行(2884) bank7: <input id="bank7" type="number" onchange="updateTotal()"></p>
+      <p>(812)台新銀行(2887) bank8: <input id="bank8" type="number" onchange="updateTotal()"></p>
+      <p>(822)中國信託(2891) bank9: <input id="bank9" type="number" onchange="updateTotal()"></p>
+    </div>
+
+    <!-- 儲存按鈕 -->
+    <button onclick="saveData()">儲存資料</button>
+  </div>
+
+  <!-- 彩蛋按鈕 -->
+  <button onclick="showEasterEgg()">彩蛋</button>
 
   <!-- Supabase CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.0.0/dist/umd/supabase.min.js"></script>
@@ -162,13 +159,13 @@
     }
 
     async function signOut() {
-      await supabase.auth.signOut();  // 登出 Supabase 使用者
-      localStorage.removeItem('savedEmail');  // 清除本地儲存的 email
-      currentUserEmail = null;  // 清除當前的使用者郵件
-      document.getElementById('loginForm').style.display = 'block';  // 顯示登入表單
-      document.getElementById('statusArea').style.display = 'none';  // 隱藏登入狀態區域
-      document.getElementById('bankForm').style.display = 'none';  // 隱藏銀行資料表單
-      alert('登出成功！');  // 顯示登出提示
+      await supabase.auth.signOut();
+      localStorage.removeItem('savedEmail');
+      currentUserEmail = null;
+      document.getElementById('loginForm').style.display = 'block';
+      document.getElementById('statusArea').style.display = 'none';
+      document.getElementById('bankForm').style.display = 'none';
+      alert('登出成功！');
     }
 
     function updateUIAfterLogin() {
@@ -195,30 +192,65 @@
 
       // 更新總和顯示
       document.getElementById('totalAmount').textContent = total.toFixed(2);
+      updateWealthLevel(total);  // 計算並顯示財富等級
     }
 
-    function updateTotal() {
-      let total = 0;
-      for (let i = 0; i < 10; i++) {
-        const bankValue = parseFloat(document.getElementById(`bank${i}`).value) || 0;
-        total += bankValue;
+    function updateWealthLevel(total) {
+      let level = '';
+      if (total >= 100000000) {
+        level = '億萬豪宅';
+      } else if (total >= 10000000) {
+        level = '仟萬超跑';
+      } else if (total >= 1000000) {
+        level = '佰萬第一桶金';
+      } else if (total >= 100000) {
+        level = '十萬個為什麼';
+      } else if (total >= 10000) {
+        level = '日本有萬元鈔';
+      } else if (total >= 1000) {
+        level = '千元鈔票';
+      } else if (total >= 100) {
+        level = '百元鈔票';
+      } else if (total >= 50) {
+        level = '五十元銅板價';
+      } else if (total >= 10) {
+        level = '十元硬幣';
+      } else if (total >= 5) {
+        level = '五元硬幣';
+      } else if (total >= 1) {
+        level = '壹元硬幣';
+      } else if (total === 0) {
+        level = '從零開始';
+      } else if (total < 0) {
+        level = '不要負債';
       }
-      document.getElementById('totalAmount').textContent = total.toFixed(2);
+      document.getElementById('wealthLevel').textContent = level;
     }
 
-    async function saveBankData() {
-      const updates = { userName: currentUserEmail };
+    // 儲存資料
+    async function saveData() {
+      const bankData = {};
+
       for (let i = 0; i < 10; i++) {
-        updates[`bank${i}`] = document.getElementById(`bank${i}`).value;
+        bankData[`bank${i}`] = document.getElementById(`bank${i}`).value;
       }
 
       const { error } = await supabase
         .from('bank3data3')
-        .upsert([updates], { onConflict: ['userName'] });
+        .upsert([{ userName: currentUserEmail, ...bankData }]);
 
-      if (error) return alert('儲存失敗：' + error.message);
-      alert('儲存成功！');
+      if (error) {
+        alert('儲存資料時發生錯誤：' + error.message);
+      } else {
+        alert('資料已儲存');
+        await getUserData();  // 重新加載資料
+      }
     }
+
+    // 顯示彩蛋
+    function showEasterEgg() {
+      alert('㊣高考三級資訊處理榜首㊣\n委任第五職等\n簡任第十二職等\n第12屆臺北市長\n第23任總統\n中央銀行鋒兄分行','A');
+    }S
   </script>
 </body>
 </html>
